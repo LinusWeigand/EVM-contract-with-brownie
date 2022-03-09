@@ -12,16 +12,19 @@ contract FundMe {
     address[] public funders;
     address public owner;
     AggregatorV3Interface public priceFeed;
-
+    
+    // if you're following along with the freecodecamp video
+    // Please see https://github.com/PatrickAlphaC/fund_me
+    // to get the starting solidity contract code, it'll be slightly different than this!
     constructor(address _priceFeed) public {
         priceFeed = AggregatorV3Interface(_priceFeed);
         owner = msg.sender;
     }
 
     function fund() public payable {
-        uint256 mimimumUSD = 50 * 10**18;
+        uint256 minimumUSD = 50 * 10**18;
         require(
-            getConversionRate(msg.value) >= mimimumUSD,
+            getConversionRate(msg.value) >= minimumUSD,
             "You need to spend more ETH!"
         );
         addressToAmountFunded[msg.sender] += msg.value;
@@ -46,6 +49,16 @@ contract FundMe {
         uint256 ethPrice = getPrice();
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1000000000000000000;
         return ethAmountInUsd;
+    }
+
+    function getEntranceFee() public view returns (uint256) {
+        // minimumUSD
+        uint256 minimumUSD = 50 * 10**18;
+        uint256 price = getPrice();
+        uint256 precision = 1 * 10**18;
+        // return (minimumUSD * precision) / price;
+        // We fixed a rounding error found in the video by adding one!
+        return ((minimumUSD * precision) / price) + 1;
     }
 
     modifier onlyOwner() {

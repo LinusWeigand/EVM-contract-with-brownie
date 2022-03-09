@@ -1,20 +1,18 @@
-from brownie import FundMe, network, config, MockV3Aggregator
-from scripts.helpful_scripts import get_account
+from brownie import FundMe, MockV3Aggregator, network, config
+from scripts.helpful_scripts import (
+    get_account,
+)
 
 
 def deploy_fund_me():
     account = get_account()
-    # pass price feed address to our funme contract
-
-    # if we are on a persistent network like rinkeby, use the associated address
-    # otherwise, deploy mocks
-    if network.show_active() != "development":
+    if network.show_active():
         price_feed_address = config["networks"][network.show_active()][
             "eth_usd_price_feed"
         ]
     else:
         print(f"The active network is {network.show_active()}")
-        print(f"Deploying Mocks...")
+        print("Deploying Mocks...")
         mock_aggregator = MockV3Aggregator.deploy(
             18, 2000000000000000000000, {"from": account}
         )
